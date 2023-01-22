@@ -58,10 +58,8 @@ namespace heitech.pwXtCli.Commands
             if (!result.IsEmpty)
                 throw new CommandException($"Password with key '{Id}' already exists in store");
 
-            var passwordResult = _store.Encrypt(Id, Value!);
+            var passwordResult = _options.Encrypt(Id, Value!);
             await _store.AddPassword(passwordResult);
-            // var skip = new Password(Key, Value, Array.Empty<byte>());
-            // await _store.AddPassword(skip);
             await console.Output.WriteLineAsync($"Password '{Id}' added to store");
         }
 
@@ -71,7 +69,7 @@ namespace heitech.pwXtCli.Commands
             if (result.IsEmpty)
                 throw new CommandException($"Password with key '{Id}' does not exist in store");
 
-            var passwordResult = _store.Encrypt(Id, Value!);
+            var passwordResult = _options.Encrypt(Id, Value!);
             await _store.UpdatePassword(passwordResult);
             await console.Output.WriteLineAsync($"Password '{Id}' updated in store");
         }

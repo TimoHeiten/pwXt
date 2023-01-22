@@ -15,6 +15,7 @@ public sealed class MergeLiteDbStores : ICommand
     [CommandParameter(order: 1, Description = "All file paths to the files you want to merge into one")]
     public IReadOnlyList<string> Paths { get; set; } = Array.Empty<string>();
 
+    // todo untested
     public async ValueTask ExecuteAsync(IConsole console)
     {
         var masterDb = new LiteDatabase(MasterDb);

@@ -14,9 +14,7 @@ public sealed  class CreatePasswordStore : ICommand
     public string Path { get; set; } = default!;
 
     public CreatePasswordStore(IClipboardService clipboard)
-    {
-        _clipboard = clipboard;
-    }
+        => _clipboard = clipboard;
 
     public async ValueTask ExecuteAsync(IConsole console)
     {

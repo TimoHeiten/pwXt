@@ -91,7 +91,7 @@ public sealed class IntegrationTests : IDisposable
     {
         // Arrange
         using var store = new LiteDbStore(_iOptions);
-        var encrypted = store.Encrypt(Id, Password);
+        var encrypted = _iOptions.Value.Encrypt(Id, Password);
         await store.AddPassword(encrypted);
 
         var read = new GetPassword(_iOptions, store, _clipBoard);
@@ -198,7 +198,7 @@ public sealed class IntegrationTests : IDisposable
         result.Id.Should().Be(mutateCommand.Id);
     }
 
-    [Fact(Skip = "flaky for apparently no obvious reason")]
+    [Fact]
     public async Task Create_And_Read_Multiple_Entries_Works_With_Encryption()
     {
         // Arrange
@@ -214,7 +214,7 @@ public sealed class IntegrationTests : IDisposable
         await read1.ExecuteAsync(_console);
 
         // Assert
-        await _clipBoard.Received().SetText(Password);
+        await _clipBoard.Received().SetText("extremely-long-Password-to-check-the-encryption-length");
     }
 
 

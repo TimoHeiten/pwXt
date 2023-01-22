@@ -6,17 +6,17 @@ namespace heitech.pwXtCli.ValueObjects
     public readonly struct Password
     {
         /// <summary>
-        /// The Key under which the password is stored
+        /// The Id under which the password is stored
         /// </summary>
         public string Id { get; }
 
         /// <summary>
-        /// the Encrypted password
+        /// The Encrypted password
         /// </summary>
         public string Value { get; }
 
         /// <summary>
-        /// The Vector for the encryption
+        /// The Vector used to encrypt the password
         /// </summary>
         // ReSharper disable once InconsistentNaming
         public string Key { get; } = default!;

@@ -22,8 +22,8 @@ namespace heitech.pwXtCli.Commands
         public GetPassword(IOptions<PwXtOptions> options, IPasswordStore store, IClipboardService clipboardService)
         {
             _store = store;
-            _clipboardService = clipboardService;
             _options = options.Value;
+            _clipboardService = clipboardService;
         }
 
         public async ValueTask ExecuteAsync(IConsole console)
@@ -32,7 +32,7 @@ namespace heitech.pwXtCli.Commands
             if (password.IsEmpty)
                 throw new CommandException($"Password with key '{Id}' does not exist in store");
 
-            var result = password.Decrypt();
+            var result = _options.Decrypt(password);
             await _clipboardService.SetText(result);
 
             await console.Output.WriteLineAsync("Password for copied to clipboard");
