@@ -20,6 +20,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore ./src/pwXt-cli/pwXt-cli.csproj
     - name: Build
-      run: dotnet build --no-restore ./src/heitech.efXt/heitech.efXt.csproj
+      run: dotnet build --no-restore ./src/pwXt-cli/pwXt-cli.csproj
     - name: Test
       run: dotnet test --no-build --verbosity normal ./tests/pwXt-cli.Tests/pwXt-cli.Tests.csproj
