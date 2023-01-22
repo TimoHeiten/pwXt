@@ -186,10 +186,10 @@ public sealed class IntegrationTests : IDisposable
         {
         }
 
-        public override void Write(string value)
+        public override void Write(string? value)
         {
             // intentionally left blank
-            Values.Add(value);
+            Values.Add(value!);
         }
 
         public override Task WriteLineAsync(string? value)

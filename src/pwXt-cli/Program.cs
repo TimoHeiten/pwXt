@@ -13,7 +13,10 @@ public class Program
     {
         var services = new ServiceCollection();
 
-        var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+        var config = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            .AddEnvironmentVariables("PW_XT_")
+            .Build();
 
         services.Configure<PwXtOptions>(config.GetSection("Config"));
 

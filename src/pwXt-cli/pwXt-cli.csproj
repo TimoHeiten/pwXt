@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="cliFx" Version="2.3.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
@@ -19,12 +20,6 @@
   <ItemGroup>
     <None Remove="appsettings.json" />
     <Content Include="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <None Remove="Data\pw-store" />
-    <None Remove="Data\pw-store-2.db" />
-    <None Remove="Data\pw-store.db" />
-    <Content Include="Data\pw-store.db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
