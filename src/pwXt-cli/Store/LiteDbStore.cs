@@ -20,44 +20,46 @@ namespace heitech.pwXtCli.Store
         {
             var db = GetCollection();
 
-            var entity = new StoredPassword(ObjectId.NewObjectId(),  password.Key, password.Value, password.IV); 
+            var entity = new StoredPassword(ObjectId.NewObjectId(),  password.Id, password.Value, password.Key); 
             db.Insert(entity);
-            db.EnsureIndex(x => x.Key);
+            db.EnsureIndex(x => x.PasswordId);
 
             return Task.CompletedTask;
         }
 
-        public Task DeletePassword(string key)
+        public Task DeletePassword(string id)
         {
             var db = GetCollection();
-            db.DeleteMany(x => x.Key == key);
+            db.DeleteMany(x => x.PasswordId == id);
             return Task.CompletedTask;
         }
 
-        public Task<Password> GetPassword(string key)
+        public Task<Password> GetPassword(string id)
         {
             var db = GetCollection();
-            var one = db.FindOne(x => x.Key == key);
+            var one = db.FindOne(x => x.PasswordId == id);
 
             if (one is null)
                 return Task.FromResult(Password.Empty);
 
-            var pw = new Password(one.Key, one.Password, one.Vector);
+            var pw = new Password(one.PasswordId, one.Password, one.Key);
             return Task.FromResult(pw);
         }
 
         public Task<IEnumerable<string>> ListKeys()
         {
             var db = GetCollection();
-            var pws = db.FindAll().Select(x => x.Key);
+            var pws = db.FindAll().Select(x => x.PasswordId);
             return Task.FromResult(pws);
         }
 
         public Task UpdatePassword(Password password)
         {
             var db = GetCollection();
-            var one = db.FindOne(x => x.Key == password.Key);
+            var one = db.FindOne(x => x.PasswordId == password.Id);
+
             one.Password = password.Value;
+            one.Key = password.Key;
             db.Update(one);
 
             return Task.CompletedTask;

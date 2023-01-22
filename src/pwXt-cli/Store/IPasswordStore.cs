@@ -10,7 +10,7 @@ namespace heitech.pwXtCli.Store
         ///<summary>
         /// Get a password from the store
         ///</summary>
-        Task<Password> GetPassword(string key);
+        Task<Password> GetPassword(string id);
 
         ///<summary>
         /// Add a password to the store

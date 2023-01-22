@@ -19,7 +19,7 @@ namespace heitech.pwXtCli.Commands
         public string Operation { get; set; } = default!;
 
         [CommandParameter(1, Description = "The key to store the password under", IsRequired = true)]
-        public string Key { get; set; } = default!;
+        public string Id { get; set; } = default!;
 
         [CommandOption(name: "value", shortName: 'v', Description = "The password to store")]
         public string? Value { get; set; }
@@ -54,34 +54,36 @@ namespace heitech.pwXtCli.Commands
 
         private async Task Create(IConsole console)
         {
-            var result = await _store.GetPassword(Key);
+            var result = await _store.GetPassword(Id);
             if (!result.IsEmpty)
-                throw new CommandException($"Password with key '{Key}' already exists in store");
+                throw new CommandException($"Password with key '{Id}' already exists in store");
 
-            var passwordResult = await _options.EncryptAsync(Key, Value!);
+            var passwordResult = _store.Encrypt(Id, Value!);
             await _store.AddPassword(passwordResult);
-            await console.Output.WriteLineAsync($"Password '{Key}' added to store");
+            // var skip = new Password(Key, Value, Array.Empty<byte>());
+            // await _store.AddPassword(skip);
+            await console.Output.WriteLineAsync($"Password '{Id}' added to store");
         }
 
         private async Task Update(IConsole console)
         {
-            var result = await _store.GetPassword(Key);
+            var result = await _store.GetPassword(Id);
             if (result.IsEmpty)
-                throw new CommandException($"Password with key '{Key}' does not exist in store");
+                throw new CommandException($"Password with key '{Id}' does not exist in store");
 
-            var passwordResult = await _options.EncryptAsync(Key, Value!, result.IV);
+            var passwordResult = _store.Encrypt(Id, Value!);
             await _store.UpdatePassword(passwordResult);
-            await console.Output.WriteLineAsync($"Password '{Key}' updated in store");
+            await console.Output.WriteLineAsync($"Password '{Id}' updated in store");
         }
 
         private async Task Delete(IConsole console)
         {
-            var result = await _store.GetPassword(Key);
+            var result = await _store.GetPassword(Id);
             if (result.IsEmpty)
-                throw new CommandException($"Password with key '{Key}' does not exist in store");
+                throw new CommandException($"Password with key '{Id}' does not exist in store");
 
-            await _store.DeletePassword(Key);
-            await console.Output.WriteLineAsync($"Password '{Key}' deleted from store");
+            await _store.DeletePassword(Id);
+            await console.Output.WriteLineAsync($"Password '{Id}' deleted from store");
         }
     }
 }

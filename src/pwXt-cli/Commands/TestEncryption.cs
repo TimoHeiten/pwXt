@@ -1,6 +1,8 @@
-﻿// using CliFx;
+﻿// using System.Diagnostics;
+// using CliFx;
 // using CliFx.Attributes;
 // using CliFx.Infrastructure;
+// using CryptoNet;
 // using heitech.pwXtCli.Options;
 // using heitech.pwXtCli.ValueObjects;
 //
@@ -9,17 +11,27 @@
 // [Command("test", Description = "test the encryption on a a password")]
 // public class TestEncryption : ICommand
 // {
-//     public async ValueTask ExecuteAsync(IConsole console)
+//     public ValueTask ExecuteAsync(IConsole console)
 //     {
 //         var options = new PwXtOptions
 //         {
-//             Passphrase = "abcaffeschnee",
+//             Passphrase = "abcaffeschnee-abcaffeschneeabcaffeschneeabcaffeschneeabcaffeschneeabcaffeschnee",
 //             ConnectionString = "does not matter"
 //         };
 //
-//         var pw = await options.EncryptAsync("movie", "swordfish");
-//         var result = await options.DecryptAsync(pw);
+//         ICryptoNet cryptoNet = new CryptoNetAes();
+//         var key = cryptoNet.ExportKey();
 //
-//         await console.Output.WriteLineAsync(result);
+//         ICryptoNet encryptClient = new CryptoNetAes(key);
+//         var encrypt = encryptClient.EncryptFromString(options.Passphrase);
+//
+//         ICryptoNet decryptClient = new CryptoNetAes(key);
+//         var decrypt = decryptClient.DecryptToString(encrypt);
+//
+//         Debug.Assert(options.Passphrase == decrypt);
+//         Console.WriteLine(options.Passphrase);
+//         Console.WriteLine(decrypt);
+//
+//         return ValueTask.CompletedTask;
 //     }
 // }

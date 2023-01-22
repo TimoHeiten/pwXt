@@ -8,16 +8,16 @@ namespace heitech.pwXtCli.Store;
 public sealed class StoredPassword
 {
     public ObjectId Id { get; set; }
-    public string Key { get; }
-    public byte[] Vector { get; }
+    public string Key { get; set; }
+    public string PasswordId { get; }
     public string Password { get; set; }
 
-    public StoredPassword(ObjectId id, string key, string password, byte[] vector)
+    public StoredPassword(ObjectId id, string passwordId, string password, string key)
     {
         Id = id;
         Key = key;
-        Vector = vector;
         Password = password;
+        PasswordId = passwordId;
     }
 
 }

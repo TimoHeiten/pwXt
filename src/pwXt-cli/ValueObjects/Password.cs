@@ -8,7 +8,7 @@ namespace heitech.pwXtCli.ValueObjects
         /// <summary>
         /// The Key under which the password is stored
         /// </summary>
-        public string Key { get; }
+        public string Id { get; }
 
         /// <summary>
         /// the Encrypted password
@@ -19,17 +19,17 @@ namespace heitech.pwXtCli.ValueObjects
         /// The Vector for the encryption
         /// </summary>
         // ReSharper disable once InconsistentNaming
-        public byte[] IV { get; } = default!;
+        public string Key { get; } = default!;
 
-        public Password(string key, string password, byte[] iv)
+        public Password(string id, string password, string key)
         {
-            IV = iv;
+            Id = id;
             Key = key;
             Value = password;
         }
 
-        public static Password Empty => new Password(string.Empty, string.Empty, Array.Empty<byte>());
-        public bool IsEmpty => string.IsNullOrEmpty(Key) && string.IsNullOrEmpty(Value);
+        public static Password Empty => new Password(string.Empty, string.Empty, string.Empty);
+        public bool IsEmpty => string.IsNullOrEmpty(Key) && string.IsNullOrEmpty(Value) && string.IsNullOrEmpty(Id);
 
         public override string ToString()
         {
