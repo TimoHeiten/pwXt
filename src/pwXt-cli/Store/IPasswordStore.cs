@@ -10,26 +10,26 @@ namespace heitech.pwXtCli.Store
         ///<summary>
         /// Get a password from the store
         ///</summary>
-        Task<Password> GetPasswordAsync(string key);
+        Task<Password> GetPassword(string key);
 
         ///<summary>
         /// Add a password to the store
         ///</summary>
-        Task AddPasswordAsync(Password password);
+        Task AddPassword(Password password);
 
         ///<summary>
         /// Update a password in the store
         ///</summary>
-        Task UpdatePasswordAsync(Password password);
+        Task UpdatePassword(Password password);
 
         ///<summary>
         /// (hard) Delete a password from the store
         ///</summary>
-        Task DeletePasswordAsync(string key);
+        Task DeletePassword(string key);
         
         ///<summary>
         /// Returns all Keys in the store
         ///</summary>
-        Task<IEnumerable<string>> ListKeysAsync();
+        Task<IEnumerable<string>> ListKeys();
     }
 }

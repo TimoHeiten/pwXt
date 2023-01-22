@@ -19,12 +19,13 @@ public class Program
 
         services.AddTransient<GetPassword>();
         services.AddTransient<ListPasswords>();
-        services.AddTransient<TestEncryption>();
+        // services.AddTransient<TestEncryption>();
 
         services.AddTransient<MutatePassword>();
         services.AddTransient<CreatePasswordStore>();
 
         services.AddScoped<IPasswordStore, LiteDbStore>();
+        services.AddScoped<IClipboardService, ClipboardService>();
 
         return await new CliApplicationBuilder()
             .AddCommandsFromThisAssembly()

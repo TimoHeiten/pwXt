@@ -23,6 +23,7 @@
     </Content>
     <None Remove="Data\pw-store" />
     <None Remove="Data\pw-store-2.db" />
+    <None Remove="Data\pw-store.db" />
     <Content Include="Data\pw-store.db">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

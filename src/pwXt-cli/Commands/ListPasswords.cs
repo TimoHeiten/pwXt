@@ -15,7 +15,7 @@ namespace heitech.pwXtCli.Commands
 
         public async ValueTask ExecuteAsync(IConsole console)
         {
-            var list = await _store.ListKeysAsync();
+            var list = await _store.ListKeys();
             foreach (var key in list)
                 await console.Output.WriteLineAsync(key);
         }

@@ -14,24 +14,26 @@ namespace heitech.pwXtCli.Commands
     {
         private readonly PwXtOptions _options;
         private readonly IPasswordStore _store;
+        private readonly IClipboardService _clipboardService;
 
         [CommandParameter(order:0, Description = "The key to store the password under", IsRequired = true)]
         public string Key { get; set; } = default!;
 
-        public GetPassword(IOptions<PwXtOptions> options, IPasswordStore store)
+        public GetPassword(IOptions<PwXtOptions> options, IPasswordStore store, IClipboardService clipboardService)
         {
             _store = store;
+            _clipboardService = clipboardService;
             _options = options.Value;
         }
 
         public async ValueTask ExecuteAsync(IConsole console)
         {
-            var password = await _store.GetPasswordAsync(Key);
+            var password = await _store.GetPassword(Key);
             if (password.IsEmpty)
                 throw new CommandException($"Password with key '{Key}' does not exist in store");
 
             var result = await _options.DecryptAsync(password);
-            await TextCopy.ClipboardService.SetTextAsync(result);
+            await _clipboardService.SetText(result);
 
             await console.Output.WriteLineAsync("Password for copied to clipboard");
         }

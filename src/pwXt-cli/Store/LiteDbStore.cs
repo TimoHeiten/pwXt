@@ -8,14 +8,15 @@ namespace heitech.pwXtCli.Store
     /// <summary>
     /// <inheritdoc cref="IPasswordStore"/>
     /// </summary>
-    public sealed class LiteDbStore : IPasswordStore
+    public sealed class LiteDbStore : IPasswordStore, IDisposable
     {
-        private readonly PwXtOptions _options;
-
+        private readonly LiteDatabase _db;
         public LiteDbStore(IOptions<PwXtOptions> options)
-            => _options = options.Value;
+        {
+            _db = new LiteDatabase(options.Value.ConnectionString);
+        }
 
-        public Task AddPasswordAsync(Password password)
+        public Task AddPassword(Password password)
         {
             var db = GetCollection();
 
@@ -26,14 +27,14 @@ namespace heitech.pwXtCli.Store
             return Task.CompletedTask;
         }
 
-        public Task DeletePasswordAsync(string key)
+        public Task DeletePassword(string key)
         {
             var db = GetCollection();
             db.DeleteMany(x => x.Key == key);
             return Task.CompletedTask;
         }
 
-        public Task<Password> GetPasswordAsync(string key)
+        public Task<Password> GetPassword(string key)
         {
             var db = GetCollection();
             var one = db.FindOne(x => x.Key == key);
@@ -45,14 +46,14 @@ namespace heitech.pwXtCli.Store
             return Task.FromResult(pw);
         }
 
-        public Task<IEnumerable<string>> ListKeysAsync()
+        public Task<IEnumerable<string>> ListKeys()
         {
             var db = GetCollection();
             var pws = db.FindAll().Select(x => x.Key);
             return Task.FromResult(pws);
         }
 
-        public Task UpdatePasswordAsync(Password password)
+        public Task UpdatePassword(Password password)
         {
             var db = GetCollection();
             var one = db.FindOne(x => x.Key == password.Key);
@@ -63,25 +64,10 @@ namespace heitech.pwXtCli.Store
         }
         private ILiteCollection<StoredPassword> GetCollection()
         {
-            var db = new LiteDatabase(_options.ConnectionString);
-            return db.GetCollection<StoredPassword>("passwords");
+            return _db.GetCollection<StoredPassword>("passwords");
         }
 
-        private sealed class StoredPassword
-        {
-            public ObjectId Id { get; set; }
-            public string Key { get; }
-            public byte[] Vector { get; }
-            public string Password { get; set; }
-
-            public StoredPassword(ObjectId id, string key, string password, byte[] vector)
-            {
-                Id = id;
-                Key = key;
-                Vector = vector;
-                Password = password;
-            }
-
-        }
+        public void Dispose()
+            => _db.Dispose();
     }
 }

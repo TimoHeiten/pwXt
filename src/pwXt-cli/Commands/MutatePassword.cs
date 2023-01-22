@@ -54,33 +54,33 @@ namespace heitech.pwXtCli.Commands
 
         private async Task Create(IConsole console)
         {
-            var result = await _store.GetPasswordAsync(Key);
+            var result = await _store.GetPassword(Key);
             if (!result.IsEmpty)
                 throw new CommandException($"Password with key '{Key}' already exists in store");
 
             var passwordResult = await _options.EncryptAsync(Key, Value!);
-            await _store.AddPasswordAsync(passwordResult);
+            await _store.AddPassword(passwordResult);
             await console.Output.WriteLineAsync($"Password '{Key}' added to store");
         }
 
         private async Task Update(IConsole console)
         {
-            var result = await _store.GetPasswordAsync(Key);
+            var result = await _store.GetPassword(Key);
             if (result.IsEmpty)
                 throw new CommandException($"Password with key '{Key}' does not exist in store");
 
             var passwordResult = await _options.EncryptAsync(Key, Value!, result.IV);
-            await _store.UpdatePasswordAsync(passwordResult);
+            await _store.UpdatePassword(passwordResult);
             await console.Output.WriteLineAsync($"Password '{Key}' updated in store");
         }
 
         private async Task Delete(IConsole console)
         {
-            var result = await _store.GetPasswordAsync(Key);
+            var result = await _store.GetPassword(Key);
             if (result.IsEmpty)
                 throw new CommandException($"Password with key '{Key}' does not exist in store");
 
-            await _store.DeletePasswordAsync(Key);
+            await _store.DeletePassword(Key);
             await console.Output.WriteLineAsync($"Password '{Key}' deleted from store");
         }
     }
