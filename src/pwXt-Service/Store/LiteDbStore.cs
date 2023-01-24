@@ -1,19 +1,18 @@
-using heitech.pwXtCli.Options;
-using heitech.pwXtCli.ValueObjects;
+using heitech.pwXtCli.Store;
 using LiteDB;
-using Microsoft.Extensions.Options;
+using pwXt_Service.ValueObjects;
 
-namespace heitech.pwXtCli.Store
+namespace pwXt_Service.Store
 {
     /// <summary>
     /// <inheritdoc cref="IPasswordStore"/>
     /// </summary>
-    public sealed class LiteDbStore : IPasswordStore, IDisposable
+    internal sealed class LiteDbStore : IPasswordStore, IDisposable
     {
         private readonly LiteDatabase _db;
-        public LiteDbStore(IOptions<PwXtOptions> options)
+        internal LiteDbStore(string connectionString)
         {
-            _db = new LiteDatabase(options.Value.ConnectionString);
+            _db = new LiteDatabase(connectionString);
         }
 
         public Task AddPassword(Password password)

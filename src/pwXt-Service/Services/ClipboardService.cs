@@ -1,4 +1,4 @@
-﻿namespace heitech.pwXtCli;
+﻿namespace pwXt_Service.Services;
 
 /// <summary>
 /// abstracts the clipBoard interaction

@@ -14,7 +14,7 @@ builder.Services.AddSingleton(
     sp => new PwStore(builder.Configuration.GetSection("AppSettings:CliPath").Value,
     sp.GetRequiredService<ToastService>())
 );
-
+// maybe we could also utilize the services directly instead of using the CLI 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

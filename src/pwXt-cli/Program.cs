@@ -1,7 +1,5 @@
 ﻿using CliFx;
 using heitech.pwXtCli.Commands;
-using heitech.pwXtCli.Options;
-using heitech.pwXtCli.Store;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,7 +16,15 @@ public class Program
             .AddEnvironmentVariables("PW_XT_")
             .Build();
 
-        services.Configure<PwXtOptions>(config.GetSection("Config"));
+        var options = config.GetSection("Config");
+
+        string Configure(string key)
+            => options.GetValue<string>(key);
+
+        services.AddPwXtServices(configure => configure.WithPassphrase(Configure("Passphrase"))
+            .WithSalt(Configure("Salt"))
+            .WithConnectionString(Configure("ConnectionString"))
+            .WithStoreType(Dependencies.StoreType.LiteDb));
 
         services.AddTransient<GetPassword>();
         services.AddTransient<ListPasswords>();
@@ -26,9 +32,6 @@ public class Program
 
         services.AddTransient<MutatePassword>();
         services.AddTransient<CreatePasswordStore>();
-
-        services.AddScoped<IPasswordStore, LiteDbStore>();
-        services.AddScoped<IClipboardService, ClipboardService>();
 
         return await new CliApplicationBuilder()
             .AddCommandsFromThisAssembly()

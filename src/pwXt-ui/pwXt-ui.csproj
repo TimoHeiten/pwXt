@@ -13,4 +13,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\pwXt-Service\pwXt-Service.csproj" />
+  </ItemGroup>
 </Project>

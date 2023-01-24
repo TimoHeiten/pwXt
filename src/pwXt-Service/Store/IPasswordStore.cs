@@ -1,6 +1,6 @@
-using heitech.pwXtCli.ValueObjects;
+using pwXt_Service.ValueObjects;
 
-namespace heitech.pwXtCli.Store
+namespace pwXt_Service.Store
 {
     ///<summary>
     /// The interface for the password store

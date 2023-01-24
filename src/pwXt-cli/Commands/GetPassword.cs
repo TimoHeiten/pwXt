@@ -2,39 +2,35 @@ using CliFx;
 using CliFx.Attributes;
 using CliFx.Exceptions;
 using CliFx.Infrastructure;
-using heitech.pwXtCli.Options;
-using heitech.pwXtCli.Store;
-using heitech.pwXtCli.ValueObjects;
-using Microsoft.Extensions.Options;
+using pwXt_Service.Commands;
+using pwXt_Service.Services;
+using pwXt_Service.ValueObjects;
 
 namespace heitech.pwXtCli.Commands
 {
     [Command("get", Description = "Get a password from the password store via the specified key")]
     public sealed class GetPassword : ICommand
     {
-        private readonly PwXtOptions _options;
-        private readonly IPasswordStore _store;
+        private readonly CommandFactory _factory;
         private readonly IClipboardService _clipboardService;
 
         [CommandParameter(order:0, Description = "The key to store the password under", IsRequired = true)]
         public string Id { get; set; } = default!;
 
-        public GetPassword(IOptions<PwXtOptions> options, IPasswordStore store, IClipboardService clipboardService)
+        public GetPassword(CommandFactory factory, IClipboardService clipboardService)
         {
-            _store = store;
-            _options = options.Value;
+            _factory = factory;
             _clipboardService = clipboardService;
         }
 
         public async ValueTask ExecuteAsync(IConsole console)
         {
-            var password = await _store.GetPassword(Id);
-            if (password.IsEmpty)
-                throw new CommandException($"Password with key '{Id}' does not exist in store");
+            var opResult = await _factory.Get(new PasswordId(Id)).ExecuteAsync();
+            if (opResult.IsSuccess is false)
+                throw new CommandException(opResult.Exception!.Message, innerException: opResult.Exception);
 
-            var result = _options.Decrypt(password);
-            await _clipboardService.SetText(result);
-
+            var result = opResult.Result as string;
+            await _clipboardService.SetText(result ?? "No password found");
             await console.Output.WriteLineAsync("Password for copied to clipboard");
         }
     }

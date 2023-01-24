@@ -2,6 +2,7 @@
 using CliFx.Attributes;
 using CliFx.Infrastructure;
 using LiteDB;
+using pwXt_Service.Services;
 
 namespace heitech.pwXtCli.Commands;
 
