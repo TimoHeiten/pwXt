@@ -26,9 +26,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
-
 app.UseRouting();
 
 app.UseEndpoints(e =>
@@ -37,6 +35,7 @@ app.UseEndpoints(e =>
     app.MapFallbackToPage("/_Host");
 });
 
+// electron ceremony
 var t = Task.Run(() => app.Run());
 var t1 = Task.Run(async () => await Electron.WindowManager.CreateBrowserViewAsync());
 var t2 = Task.Run(async () => await Electron.WindowManager.CreateWindowAsync());

@@ -9,25 +9,12 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class Dependencies
 {
     /// <summary>
-    /// Add all default dependencies for the password manager Backend.
-    /// Includes a LiteDbStore
+    /// Add all dependencies for the password manager Backend
     /// </summary>
     /// <param name="services"></param>
     /// <param name="configure"></param>
     /// <returns></returns>
     public static IServiceCollection AddPwXtServices(this IServiceCollection services, Func<PasswordStoreBuilder, PasswordStoreBuilder> configure)
-    {
-        return services.AddPwXtServices(StoreType.LiteDb, configure);
-    }
-
-    /// <summary>
-    /// Add all dependencies for the password manager Backend
-    /// </summary>
-    /// <param name="services"></param>
-    /// <param name="storeType"></param>
-    /// <param name="configure"></param>
-    /// <returns></returns>
-    public static IServiceCollection AddPwXtServices(this IServiceCollection services, StoreType storeType, Func<PasswordStoreBuilder, PasswordStoreBuilder> configure)
     {
         var builder = new PasswordStoreBuilder();
         var enhanced = configure(builder);

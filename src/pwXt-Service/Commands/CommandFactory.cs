@@ -14,7 +14,7 @@ public sealed class CommandFactory
     private readonly PwXtOptions _options;
     private readonly IPasswordStore _passwordStore;
 
-    internal CommandFactory(IPasswordStore passwordStore, PwXtOptions options)
+    public CommandFactory(IPasswordStore passwordStore, PwXtOptions options)
     {
         _options = options;
         _passwordStore = passwordStore;

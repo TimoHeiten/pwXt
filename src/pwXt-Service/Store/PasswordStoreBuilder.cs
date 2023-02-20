@@ -1,8 +1,10 @@
-﻿using heitech.pwXtCli.Store;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace pwXt_Service.Store;
 
+/// <summary>
+/// Builder Pattern for the passwordStore
+/// </summary>
 public sealed class PasswordStoreBuilder
 {
     // defaults are liteDb
