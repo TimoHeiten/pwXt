@@ -16,7 +16,6 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
-    <PackageReference Include="TextCopy" Version="6.0.0" />
     <PackageReference Include="LiteDB" Version="5.0.15" />
   </ItemGroup>
   <ItemGroup>
@@ -24,5 +23,8 @@
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\pwXt-Service\pwXt-Service.csproj" />
   </ItemGroup>
 </Project>

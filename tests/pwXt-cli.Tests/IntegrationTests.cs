@@ -2,17 +2,18 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using CliFx.Infrastructure;
 using FluentAssertions;
 using heitech.pwXtCli;
 using heitech.pwXtCli.Commands;
 using heitech.pwXtCli.Options;
-using heitech.pwXtCli.Store;
-using heitech.pwXtCli.ValueObjects;
 using Microsoft.Extensions.Options;
 using NSubstitute;
+using pwXt_Service.Commands;
+using pwXt_Service.Services;
+using pwXt_Service.Store;
+using pwXt_Service.ValueObjects;
 using Xunit;
 
 namespace pwXt_cli.Tests;
@@ -42,7 +43,7 @@ public sealed class IntegrationTests : IDisposable
         _console.Output.Returns(_writer);
         _clipBoard = Substitute.For<IClipboardService>();
     }
-    
+
     private IOptions<PwXtOptions> Init()
     {
         var options = new PwXtOptions
@@ -56,13 +57,16 @@ public sealed class IntegrationTests : IDisposable
         return iOptions;
     }
 
+    private CommandFactory Factory(IPasswordStore store)
+        => new CommandFactory(store, _iOptions.Value);
+
     [Fact]
     public async Task Running_Main_Starts_CliFx()
     {
         // Arrange
 
         // Act
-        var act = async () => await Program.Main(new [] { "list"} );
+        var act = async () => await Program.Main(new[] {"list"});
 
         // Assert
         await act.Should().NotThrowAsync();
@@ -72,12 +76,12 @@ public sealed class IntegrationTests : IDisposable
     public async Task List_Lists_All_Keys_In_Store()
     {
         // Arrange
-        using var store = new LiteDbStore(_iOptions);
-        var pws = new[] { "key1", "key2", "key3" }.ToList();
+        using var store = new LiteDbStore(_iOptions.Value.ConnectionString);
+        var pws = new[] {"key1", "key2", "key3"}.ToList();
         foreach (var pw in pws)
             await store.AddPassword(new Password(pw, Password, "key not relevant here"));
 
-        var command = new ListPasswords(store);
+        var command = new ListPasswords(Factory(store));
 
         // Act
         await command.ExecuteAsync(_console);
@@ -90,11 +94,11 @@ public sealed class IntegrationTests : IDisposable
     public async Task AddedPassword_Should_Be_Readable()
     {
         // Arrange
-        using var store = new LiteDbStore(_iOptions);
+        using var store = new LiteDbStore(_iOptions.Value.ConnectionString);
         var encrypted = _iOptions.Value.Encrypt(Id, Password);
         await store.AddPassword(encrypted);
 
-        var read = new GetPassword(_iOptions, store, _clipBoard);
+        var read = new GetPassword(Factory(store), _clipBoard);
         read.Id = Id;
 
         // Act
@@ -113,8 +117,9 @@ public sealed class IntegrationTests : IDisposable
         // phase 2 create first entry
         // _________________________________________________________________________
         // Arrange
-        using var store = new LiteDbStore(_iOptions);
-        var mutateCommand = new MutatePassword(_iOptions, store)
+        using var store = new LiteDbStore(_iOptions.Value.ConnectionString);
+        var fac = Factory(store);
+        var mutateCommand = new MutatePassword(fac)
         {
             Id = Id,
             Value = Password,
@@ -131,7 +136,7 @@ public sealed class IntegrationTests : IDisposable
         // _________________________________________________________________________
         // phase 3 update and read
         // _________________________________________________________________________
-        var update = new MutatePassword(_iOptions, store)
+        var update = new MutatePassword(fac)
         {
             Id = Id,
             Value = "better-swordfish",
@@ -149,7 +154,7 @@ public sealed class IntegrationTests : IDisposable
         // _________________________________________________________________________
         // phase 4 delete and no result on read
         // _________________________________________________________________________
-        var del = new MutatePassword(_iOptions, store)
+        var del = new MutatePassword(fac)
         {
             Id = Id,
             Operation = "del"
@@ -171,7 +176,7 @@ public sealed class IntegrationTests : IDisposable
         // _________________________________________________________________________
 
         // phase1.arrange
-        var createCommand = new CreatePasswordStore(_clipBoard) { Path = _pathToDb };
+        var createCommand = new CreatePasswordStore(_clipBoard) {Path = _pathToDb};
 
         // phase1.act
         var act = async () => await createCommand.ExecuteAsync(_console);
@@ -183,7 +188,8 @@ public sealed class IntegrationTests : IDisposable
 
     private async Task CreateAnEntry(IPasswordStore store, string key, string value)
     {
-        var mutateCommand = new MutatePassword(_iOptions, store)
+        var fac = Factory(store);
+        var mutateCommand = new MutatePassword(fac)
         {
             Id = key,
             Value = value,
@@ -203,9 +209,10 @@ public sealed class IntegrationTests : IDisposable
     {
         // Arrange
         await CreateDb();
-        using var store = new LiteDbStore(_iOptions);
+        using var store = new LiteDbStore(_iOptions.Value.ConnectionString);
+        var fac = Factory(store);
         await CreateAnEntry(store, Id, "extremely-long-Password-to-check-the-encryption-length");
-        var read1 = new GetPassword(_iOptions, store, _clipBoard)
+        var read1 = new GetPassword(fac, _clipBoard)
         {
             Id = Id,
         };
@@ -220,7 +227,7 @@ public sealed class IntegrationTests : IDisposable
 
     public void Dispose()
         => Directory.Delete(Path.Combine(Environment.CurrentDirectory, "test"), true);
-    
+
     private sealed class WriterMock : ConsoleWriter
     {
         public List<string> Values { get; } = new();
@@ -240,5 +247,5 @@ public sealed class IntegrationTests : IDisposable
             Values.Add(value!);
             return Task.CompletedTask;
         }
-    }   
+    }
 }

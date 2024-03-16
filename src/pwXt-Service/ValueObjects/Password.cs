@@ -1,4 +1,4 @@
-namespace heitech.pwXtCli.ValueObjects
+namespace pwXt_Service.ValueObjects
 {
     ///<summary>
     /// Represents a password

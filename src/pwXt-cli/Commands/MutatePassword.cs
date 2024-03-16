@@ -2,18 +2,16 @@ using CliFx;
 using CliFx.Attributes;
 using CliFx.Exceptions;
 using CliFx.Infrastructure;
-using heitech.pwXtCli.Options;
-using heitech.pwXtCli.Store;
-using heitech.pwXtCli.ValueObjects;
-using Microsoft.Extensions.Options;
+using pwXt_Service.Commands;
+using pwXt_Service.Operation;
+using pwXt_Service.ValueObjects;
 
 namespace heitech.pwXtCli.Commands
 {
     [Command(Description = "Mutate - (add, alter, del) -  a password in the password store")]
     public sealed class MutatePassword : ICommand
     {
-        private readonly PwXtOptions _options;
-        private readonly IPasswordStore _store;
+        private readonly CommandFactory _factory;
 
         [CommandParameter(order: 0, Description = "The operation to perform on the password store (add, remove, update)", IsRequired = true)]
         public string Operation { get; set; } = default!;
@@ -24,64 +22,33 @@ namespace heitech.pwXtCli.Commands
         [CommandOption(name: "value", shortName: 'v', Description = "The password to store")]
         public string? Value { get; set; }
 
-        public MutatePassword(IOptions<PwXtOptions> options, IPasswordStore store)
-        {
-            _store = store;
-            _options = options.Value;
-        }
+        public MutatePassword(CommandFactory factory)
+            => _factory = factory;
 
+        private Dictionary<string, (OperationType, string)> _lookUp = new()
+        {
+            { "add", (OperationType.Add, "Password '{0}' was stored") },
+            { "alter", (OperationType.Alter, "Password '{0}' updated in store")},
+            { "del", (OperationType.Delete, "Password '{0}' deleted from store") },
+        };
+        
         public async ValueTask ExecuteAsync(IConsole console)
         {
-            switch (Operation)
-            {
-                case "add":
-                    if (Value == default)
-                        throw new CommandException("Value is required for add operation");
-                    await Create(console);
-                    break;
-                case "alter":
-                    if (Value == default)
-                        throw new CommandException("Value is required for add operation");
-                    await Update(console);
-                    break;
-                case "del":
-                    await Delete(console);
-                    break;
-                default:
-                    throw new CommandException($"Operation '{Operation}' is not supported");
-            }
-        }
 
-        private async Task Create(IConsole console)
-        {
-            var result = await _store.GetPassword(Id);
-            if (!result.IsEmpty)
-                throw new CommandException($"Password with key '{Id}' already exists in store");
+            if (!_lookUp.TryGetValue(Operation, out var tuple))
+                throw new CommandException($"Operation '{Operation}' is not supported");
 
-            var passwordResult = _options.Encrypt(Id, Value!);
-            await _store.AddPassword(passwordResult);
-            await console.Output.WriteLineAsync($"Password '{Id}' added to store");
-        }
+            var (operationType, message) = tuple;
+            if (Value == default && (operationType == OperationType.Add || operationType == OperationType.Alter))
+                throw new CommandException($"Operation '{Operation}' requires the -v flag to be set");
+            
+            var operation = _factory.Mutate(new PasswordId(Id), new PasswordValue(Value!), operationType);
+            var opResult = await operation.ExecuteAsync();
+            if (!opResult.IsSuccess)
+                throw new CommandException(opResult.Exception!.Message, innerException: opResult.Exception);
 
-        private async Task Update(IConsole console)
-        {
-            var result = await _store.GetPassword(Id);
-            if (result.IsEmpty)
-                throw new CommandException($"Password with key '{Id}' does not exist in store");
-
-            var passwordResult = _options.Encrypt(Id, Value!);
-            await _store.UpdatePassword(passwordResult);
-            await console.Output.WriteLineAsync($"Password '{Id}' updated in store");
-        }
-
-        private async Task Delete(IConsole console)
-        {
-            var result = await _store.GetPassword(Id);
-            if (result.IsEmpty)
-                throw new CommandException($"Password with key '{Id}' does not exist in store");
-
-            await _store.DeletePassword(Id);
-            await console.Output.WriteLineAsync($"Password '{Id}' deleted from store");
+            var formatted = string.Format(message, Id);
+            await console.Output.WriteLineAsync(formatted);
         }
     }
 }

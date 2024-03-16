@@ -5,7 +5,7 @@ using CryptoNet;
 using CryptoNet.Models;
 using heitech.pwXtCli.Options;
 
-namespace heitech.pwXtCli.ValueObjects;
+namespace pwXt_Service.ValueObjects;
 
 public static class PasswordExtensions
 {
@@ -64,8 +64,8 @@ public static class PasswordExtensions
     private static byte[] DeriveKeyFromPassword(PwXtOptions options)
     {
         var emptySalt = options.Salt.Convert();
-        var iterations = 1000;
-        var desiredKeyLength = 32; // 16 bytes equal 256 bits.
+        const int iterations = 1000;
+        const int desiredKeyLength = 32; // 16 bytes equal 256 bits.
         var hashMethod = HashAlgorithmName.SHA384;
         return Rfc2898DeriveBytes.Pbkdf2(options.Passphrase.Convert(),
             emptySalt,

@@ -1,0 +1,107 @@
+@page "/"
+@using pwXt_ui.Data
+@inject PwStore _pwStore;
+@inject ToastService _toaster;
+
+<PageTitle>PasswordManager</PageTitle>
+<div class="container">
+    <div class="row">
+        <Toaster />
+    </div>
+    <div class="row">
+        <div class="col-8">
+            <div class="table-responsive">
+                <table class="table-light">
+                    <thead>
+                    <td>Copy to clipboard</td>
+                    <td>Update</td>
+                    <td>Delete</td>
+                    </thead>
+                    <tbody>
+                    @foreach (var pw in _passwordKeys)
+                    {
+                        <tr>
+                            <td class="align-middle d-table-cell">
+                                <button class="btn btn-info" @onclick="@(async () => await SavePassword(pw))">@pw</button>
+                            </td>
+                            <td>
+                                <button class="btn btn-primary" @onclick="@(async () => await UpdatePassword(pw))">Update</button>
+                            </td>
+                            <td>
+                                <button class="btn btn-warning" @onclick="@(async () => await DeletePassword(pw))">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-4">
+            <input type="text" @bind="_passwordId"/>
+            <input type="text" @bind="_passwordValue"/>
+            <button class="rounded-pill btn btn-primary"
+                    hidden="@CanAdd()"
+                    onclick="@(async () => await CreatePasswordAsync())">
+                Add new Password
+            </button>
+        </div>
+    </div>
+</div>
+
+
+@code
+{
+    private bool CanAdd() => !(!string.IsNullOrWhiteSpace(_passwordId) && !string.IsNullOrWhiteSpace(_passwordValue));
+    private string _passwordId = default!;
+    private string _passwordValue = default!;
+
+    private IEnumerable<string> _passwordKeys = Array.Empty<string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _passwordKeys = await _pwStore.GetListAsync();
+        await InvokeAsync(StateHasChanged);
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task SavePassword(string pw)
+    {
+        _ = await _pwStore.GetPasswordAsync(pw);
+    }
+
+    private async Task UpdatePassword(string pw)
+    {
+    // todo 
+        await Task.CompletedTask;
+    // var password = await _pwStore.GetPassword(pw);
+    // var result = await _pwStore.UpdatePassword(pw, password);
+    // if (result)
+    // {
+    //     await InvokeAsync(StateHasChanged);
+    // }
+    }
+
+    private async Task DeletePassword(string s)
+    {
+        var result = await _pwStore.DeletePassword(s);
+        if (result)
+        {
+            _passwordKeys = await _pwStore.GetListAsync();
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task CreatePasswordAsync()
+    {
+        _toaster.ShowToast($"pw combi: {_passwordId} - {_passwordValue}", ToastService.ToastLevel.Info);
+        var result = await _pwStore.CreatePassword(_passwordId, _passwordValue);
+        _passwordId = null!;
+        _passwordValue = null!;
+        if (result)
+        {
+            _passwordKeys = await _pwStore.GetListAsync();
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+}
